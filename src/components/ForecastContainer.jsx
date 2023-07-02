@@ -21,10 +21,10 @@ export default class ForecastContainer extends React.Component {
             temp: item.main.temp,
             dt: item.dt,
             date: item.dt_txt,
-            imgId: item.weather[0].icon,
+            imgId: item.weather[0].id,
             desc: item.weather[0].description,
           }));
-        this.setState({ dailyData:data, loading: false });
+        this.setState({ dailyData: data, loading: false });
       } else {
         this.setState({ loading: false, error: true });
       }
@@ -35,13 +35,19 @@ export default class ForecastContainer extends React.Component {
   render() {
     const { loading, error, dailyData } = this.state;
     return (
-      <div>
-        <div>Forecast Container</div>
+      <div className="container mt-5">
+        <div className="display-1 jumbotron bg-secondary py-5 mb-5">5-Day Forecast</div>
+        <h5 className="text-muted">Fayetteville NC, US</h5>
         <DegreeToggle />
-        {!loading? dailyData.map((item) => (
-          <DayCard key={item.dt} data={item}/>
-        )): <div>Loading....</div>}
+        <div className="row justify-content-center">
+          {!loading ? (
+            dailyData.map((item) => <DayCard key={item.dt} data={item} />)
+          ) : (
+            <div>Loading....</div>
+          )}
+        </div>
+        {error && <h3 className="text-danger">Error loading data</h3>}
       </div>
-    )
+    );
   }
 }
