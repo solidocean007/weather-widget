@@ -34,13 +34,12 @@ export default class ForecastContainer extends React.Component {
   }
   render() {
     const { loading, error, dailyData } = this.state;
-    console.log(dailyData, loading, error);
     return (
       <div>
         <div>Forecast Container</div>
         <DegreeToggle />
-        {!loading? dailyData.map((item, index) => (
-          <DayCard key={index} data={item}/>
+        {!loading? dailyData.map((item) => (
+          <DayCard key={item.dt} data={item}/>
         )): <div>Loading....</div>}
       </div>
     )
