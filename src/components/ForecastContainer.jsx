@@ -8,6 +8,7 @@ export default class ForecastContainer extends React.Component {
     dailyData: [],
     loading: false,
     error: false,
+    degreeType: "fahrenheit",
   };
   async componentDidMount() {
     this.setState({ loading: true });
@@ -32,16 +33,24 @@ export default class ForecastContainer extends React.Component {
       console.error("There was an error", err);
     }
   }
+
+  updateForecastDegree = ({ target: { value } }) =>
+    this.setState({ degreeType: value });
+
   render() {
-    const { loading, error, dailyData } = this.state;
+    const { loading, error, dailyData, degreeType } = this.state;
     return (
       <div className="container mt-5">
-        <div className="display-1 jumbotron bg-secondary py-5 mb-5">5-Day Forecast</div>
+        <div className="display-1 jumbotron bg-secondary py-5 mb-5">
+          5-Day Forecast
+        </div>
         <h5 className="text-muted">Fayetteville NC, US</h5>
-        <DegreeToggle />
+        <DegreeToggle updateForecastDegree={this.updateForecastDegree} degreeType={degreeType} />
         <div className="row justify-content-center">
           {!loading ? (
-            dailyData.map((item) => <DayCard key={item.dt} data={item} />)
+            dailyData.map((item) => (
+              <DayCard key={item.dt} data={item} degreeType={degreeType} />
+            ))
           ) : (
             <div>Loading....</div>
           )}
