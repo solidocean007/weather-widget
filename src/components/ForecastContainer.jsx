@@ -2,6 +2,9 @@ import React from "react";
 import DayCard from "./DayCard";
 import DegreeToggle from "./DegreeToggle";
 import { WEATHER_URL } from "../constants";
+import WeatherService from "../services";
+
+const weather = new WeatherService();
 
 export default class ForecastContainer extends React.Component {
   state = {
@@ -9,30 +12,29 @@ export default class ForecastContainer extends React.Component {
     loading: false,
     error: false,
     degreeType: "fahrenheit",
+    windSpeedUnit: 'mph',
   };
-  async componentDidMount() {
+
+  componentDidMount() {
     this.setState({ loading: true });
-    try {
-      const response = await fetch(WEATHER_URL);
-      if (response.ok) {
-        const json = await response.json();
-        const data = json.list
-          .filter((day) => day.dt_txt.includes("00:00:00"))
-          .map((item) => ({
-            temp: item.main.temp,
-            dt: item.dt,
-            date: item.dt_txt,
-            imgId: item.weather[0].id,
-            desc: item.weather[0].description,
-          }));
-        this.setState({ dailyData: data, loading: false });
-      } else {
+
+    weather.fetchFiveDayForecast()
+      .then((res)=>{
+        if(res && res.response.ok) {
+          this.setState({ 
+            dailyData: res.data, 
+            loading: false,
+          });
+        } else {
+          this.setState({loading: false});
+        }
+      },(error)=>{
+        console.log(error);
         this.setState({ loading: false, error: true });
-      }
-    } catch (err) {
-      console.error("There was an error", err);
+      })
     }
-  }
+
+  updateWindSpeedUnit = event => this.setState({ windSpeedUnit: event.target.value});
 
   updateForecastDegree = ({ target: { value } }) =>
     this.setState({ degreeType: value });
@@ -40,7 +42,7 @@ export default class ForecastContainer extends React.Component {
   render() {
     const { loading, error, dailyData, degreeType } = this.state;
     return (
-      <div className="container mt-5">
+      <div className="container mt-1">
         <div className="display-1 jumbotron bg-secondary py-5 mb-5">
           5-Day Forecast
         </div>
@@ -49,7 +51,7 @@ export default class ForecastContainer extends React.Component {
         <div className="row justify-content-center">
           {!loading ? (
             dailyData.map((item) => (
-              <DayCard key={item.dt} data={item} degreeType={degreeType} />
+              <DayCard key={item.dt} data={item} degreeType={degreeType} windSpeedUnit={this.state.windSpeedUnit} updateWindSpeedUnit={this.updateWindSpeedUnit}/>
             ))
           ) : (
             <div>Loading....</div>
@@ -60,3 +62,4 @@ export default class ForecastContainer extends React.Component {
     );
   }
 }
+
